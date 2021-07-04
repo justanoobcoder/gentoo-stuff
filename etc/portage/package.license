@@ -1,0 +1,5 @@
+sys-kernel/linux-firmware @BINARY-REDISTRIBUTABLE
+www-client/google-chrome google-chrome
+app-office/wps-office WPS-EULA
+media-fonts/corefonts MSttfEULA
+app-arch/unrar unRAR
