@@ -48,3 +48,8 @@
 # required by app-shells/fish-3.2.2::gentoo
 # required by fish (argument)
 >=dev-libs/libpcre2-10.36-r1 pcre32
+# required by x11-libs/pango-1.48.7::gentoo
+# required by app-office/wps-office-11.1.0.10161::gentoo
+# required by @selected
+# required by @world (argument)
+>=media-libs/freetype-2.10.4 harfbuzz
