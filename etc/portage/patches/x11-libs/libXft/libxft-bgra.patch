@@ -1,8 +1,6 @@
-diff --git a/src/xftfreetype.c b/src/xftfreetype.c
-index a3b83329914f2820a76349d7a77b648e0e864d3b..a639a03aaeeffb1c3c1fc70a222539d3b1dce2e3 100644
---- a/src/xftfreetype.c
-+++ b/src/xftfreetype.c
-@@ -514,7 +514,7 @@ XftFontInfoFill (Display *dpy, _Xconst FcPattern *pattern, XftFontInfo *fi)
+--- a/src/xftfreetype.c	2021-08-07 16:29:44.026152139 +0700
++++ b/src/xftfreetype.c	2021-08-07 16:29:07.290153986 +0700
+@@ -523,7 +523,7 @@
      /*
       * Compute glyph load flags
       */
@@ -11,7 +9,7 @@ index a3b83329914f2820a76349d7a77b648e0e864d3b..a639a03aaeeffb1c3c1fc70a222539d3
  
  #ifndef XFT_EMBEDDED_BITMAP
  #define XFT_EMBEDDED_BITMAP "embeddedbitmap"
-@@ -766,6 +766,7 @@ XftFontOpenInfo (Display	*dpy,
+@@ -775,6 +775,7 @@
      FcChar32		hash_value;
      FcChar32		rehash_value;
      FcBool		antialias;
@@ -19,7 +17,7 @@ index a3b83329914f2820a76349d7a77b648e0e864d3b..a639a03aaeeffb1c3c1fc70a222539d3
      int			max_glyph_memory;
      int			alloc_size;
      int			ascent, descent, height;
-@@ -822,12 +823,16 @@ XftFontOpenInfo (Display	*dpy,
+@@ -831,12 +832,16 @@
      if (!(face->face_flags & FT_FACE_FLAG_SCALABLE))
  	antialias = FcFalse;
  
@@ -37,7 +35,7 @@ index a3b83329914f2820a76349d7a77b648e0e864d3b..a639a03aaeeffb1c3c1fc70a222539d3
  	{
  	    switch (fi->rgba) {
  	    case FC_RGBA_RGB:
-@@ -842,9 +847,7 @@ XftFontOpenInfo (Display	*dpy,
+@@ -851,9 +856,7 @@
  	    }
  	}
  	else
@@ -47,7 +45,7 @@ index a3b83329914f2820a76349d7a77b648e0e864d3b..a639a03aaeeffb1c3c1fc70a222539d3
  
  	if (!format)
  	    goto bail2;
-@@ -959,6 +962,13 @@ XftFontOpenInfo (Display	*dpy,
+@@ -968,6 +971,13 @@
       * which doesn't happen in XftFontInfoFill
       */
      font->info.antialias = antialias;
@@ -61,10 +59,8 @@ index a3b83329914f2820a76349d7a77b648e0e864d3b..a639a03aaeeffb1c3c1fc70a222539d3
      /*
       * bump XftFile reference count
       */
-diff --git a/src/xftglyphs.c b/src/xftglyphs.c
-index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0bb6697f9 100644
---- a/src/xftglyphs.c
-+++ b/src/xftglyphs.c
+--- a/src/xftglyphs.c	2021-08-07 16:29:44.026152139 +0700
++++ b/src/xftglyphs.c	2021-08-07 16:29:07.290153986 +0700
 @@ -26,6 +26,8 @@
  
  #include FT_SYNTHESIS_H
@@ -74,7 +70,7 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
  /*
   * Validate the memory info for a font
   */
-@@ -78,9 +80,11 @@ _XftFontValidateMemory (Display *dpy, XftFont *public)
+@@ -78,9 +80,11 @@
  static int
  _compute_xrender_bitmap_size( FT_Bitmap*	target,
  			      FT_GlyphSlot	slot,
@@ -87,13 +83,10 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
      int		width, height, pitch;
  
      if ( slot->format != FT_GLYPH_FORMAT_BITMAP )
-@@ -88,9 +92,18 @@ _compute_xrender_bitmap_size( FT_Bitmap*	target,
+@@ -91,6 +95,16 @@
  
-     // compute the size of the final bitmap
-     ftbit = &slot->bitmap;
--
-     width = ftbit->width;
-     height = ftbit->rows;
+     width = (int)ftbit->width;
+     height = (int)ftbit->rows;
 +
 +    if ( matrix && mode == FT_RENDER_MODE_NORMAL )
 +    {
@@ -107,7 +100,7 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
      pitch = (width+3) & ~3;
  
      switch ( ftbit->pixel_mode )
-@@ -112,6 +125,10 @@ _compute_xrender_bitmap_size( FT_Bitmap*	target,
+@@ -112,6 +126,10 @@
  	}
  	break;
  
@@ -118,11 +111,10 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
      case FT_PIXEL_MODE_LCD:
  	if ( mode != FT_RENDER_MODE_LCD )
  	    return -1;
-@@ -142,6 +159,105 @@ _compute_xrender_bitmap_size( FT_Bitmap*	target,
-     return pitch * height;
+@@ -143,6 +161,105 @@
  }
  
-+/* this functions converts the glyph bitmap found in a FT_GlyphSlot
+ /* this functions converts the glyph bitmap found in a FT_GlyphSlot
 + * into a different format while scaling by applying the given matrix
 + * (see _compute_xrender_bitmap_size)
 + *
@@ -221,10 +213,11 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
 +    }
 +}
 +
- /* this functions converts the glyph bitmap found in a FT_GlyphSlot
++/* this functions converts the glyph bitmap found in a FT_GlyphSlot
   * into a different format (see _compute_xrender_bitmap_size)
   *
-@@ -244,6 +360,11 @@ _fill_xrender_bitmap( FT_Bitmap*	target,
+  * you should call this function after _compute_xrender_bitmap_size
+@@ -244,6 +361,11 @@
  	    }
  	    break;
  
@@ -236,7 +229,7 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
  	case FT_PIXEL_MODE_LCD:
  	    if ( !bgr )
  	    {
-@@ -365,6 +486,8 @@ XftFontLoadGlyphs (Display	    *dpy,
+@@ -365,6 +487,8 @@
      FT_Vector	    vector;
      FT_Face	    face;
      FT_Render_Mode  mode = FT_RENDER_MODE_MONO;
@@ -245,7 +238,7 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
  
      if (!info)
  	return;
-@@ -374,6 +497,8 @@ XftFontLoadGlyphs (Display	    *dpy,
+@@ -374,6 +498,8 @@
      if (!face)
  	return;
  
@@ -254,7 +247,7 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
      if (font->info.antialias)
      {
  	switch (font->info.rgba) {
-@@ -390,6 +515,8 @@ XftFontLoadGlyphs (Display	    *dpy,
+@@ -390,6 +516,8 @@
  	}
      }
  
@@ -263,7 +256,7 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
      while (nglyph--)
      {
  	glyphindex = *glyphs++;
-@@ -440,7 +567,7 @@ XftFontLoadGlyphs (Display	    *dpy,
+@@ -440,7 +568,7 @@
  	/*
  	 * Compute glyph metrics from FreeType information
  	 */
@@ -272,7 +265,7 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
  	{
  	    /*
  	     * calculate the true width by transforming all four corners.
-@@ -487,7 +614,7 @@ XftFontLoadGlyphs (Display	    *dpy,
+@@ -487,7 +615,7 @@
  	 * Clip charcell glyphs to the bounding box
  	 * XXX transformed?
  	 */
@@ -281,7 +274,7 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
  	{
  	    if (font->info.load_flags & FT_LOAD_VERTICAL_LAYOUT)
  	    {
-@@ -519,18 +646,20 @@ XftFontLoadGlyphs (Display	    *dpy,
+@@ -519,18 +647,20 @@
  	    }
  	}
  
@@ -303,7 +296,7 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
  	    {
  		if (font->info.load_flags & FT_LOAD_VERTICAL_LAYOUT)
  		{
-@@ -613,14 +742,27 @@ XftFontLoadGlyphs (Display	    *dpy,
+@@ -613,14 +743,27 @@
  	    }
  	}
  
@@ -312,10 +305,10 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
  	if ( size < 0 )
  	    continue;
  
- 	xftg->metrics.width  = local.width;
- 	xftg->metrics.height = local.rows;
--	xftg->metrics.x      = - glyphslot->bitmap_left;
--	xftg->metrics.y      =   glyphslot->bitmap_top;
+ 	xftg->metrics.width  = (unsigned short)local.width;
+ 	xftg->metrics.height = (unsigned short)local.rows;
+-	xftg->metrics.x      = (short)(- glyphslot->bitmap_left);
+-	xftg->metrics.y      = (short)(  glyphslot->bitmap_top);
 +	if (transform)
 +	{
 +	    vector.x = - glyphslot->bitmap_left;
@@ -334,7 +327,7 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
  
  	/*
  	 * If the glyph is relatively large (> 1% of server memory),
-@@ -645,9 +787,12 @@ XftFontLoadGlyphs (Display	    *dpy,
+@@ -645,9 +788,12 @@
  
  	local.buffer = bufBitmap;
  
@@ -350,15 +343,15 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
  
  	/*
  	 * Copy or convert into local buffer.
-@@ -662,6 +807,7 @@ XftFontLoadGlyphs (Display	    *dpy,
+@@ -662,6 +808,7 @@
  	 */
  	glyph = (Glyph) glyphindex;
  
 +	xftg->picture = 0;
- 	xftg->glyph_memory = size + sizeof (XftGlyph);
+ 	xftg->glyph_memory = (size_t)size + sizeof (XftGlyph);
  	if (font->format)
  	{
-@@ -685,15 +831,35 @@ XftFontLoadGlyphs (Display	    *dpy,
+@@ -685,15 +832,35 @@
  		    }
  		}
  	    }
@@ -398,7 +391,7 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
  	}
  	else
  	{
-@@ -744,7 +910,9 @@ XftFontUnloadGlyphs (Display		*dpy,
+@@ -744,7 +911,9 @@
  	{
  	    if (font->format)
  	    {
@@ -409,11 +402,9 @@ index 4b5fb82e570ed6df9de1fbd6aa0c72f5524042bf..af2e3c1d2a5c4f62019c5fb869cda3d0
  		{
  		    glyphBuf[nused++] = (Glyph) glyphindex;
  		    if (nused == sizeof (glyphBuf) / sizeof (glyphBuf[0]))
-diff --git a/src/xftint.h b/src/xftint.h
-index c06ac3cba2430eac98fe217e4a6e923ce2c6649a..b263520d4bb89fc395628d5c35f926c5e9edc8a4 100644
---- a/src/xftint.h
-+++ b/src/xftint.h
-@@ -85,6 +85,7 @@ typedef struct _XftGlyph {
+--- a/src/xftint.h	2021-08-07 16:29:44.026152139 +0700
++++ b/src/xftint.h	2021-08-07 16:29:07.290153986 +0700
+@@ -85,6 +85,7 @@
      XGlyphInfo	    metrics;
      void	    *bitmap;
      unsigned long   glyph_memory;
@@ -421,7 +412,7 @@ index c06ac3cba2430eac98fe217e4a6e923ce2c6649a..b263520d4bb89fc395628d5c35f926c5
  } XftGlyph;
  
  /*
-@@ -134,6 +135,7 @@ struct _XftFontInfo {
+@@ -134,6 +135,7 @@
      FT_F26Dot6		xsize, ysize;	/* pixel size */
      FcBool		antialias;	/* doing antialiasing */
      FcBool		embolden;	/* force emboldening */
@@ -429,15 +420,12 @@ index c06ac3cba2430eac98fe217e4a6e923ce2c6649a..b263520d4bb89fc395628d5c35f926c5
      int			rgba;		/* subpixel order */
      int			lcd_filter;	/* lcd filter */
      FT_Matrix		matrix;		/* glyph transformation matrix */
-diff --git a/src/xftrender.c b/src/xftrender.c
-index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a72071b95b 100644
---- a/src/xftrender.c
-+++ b/src/xftrender.c
-@@ -25,6 +25,35 @@
- #define NUM_LOCAL	1024
+--- a/src/xftrender.c	2021-08-07 16:29:44.026152139 +0700
++++ b/src/xftrender.c	2021-08-07 16:29:07.290153986 +0700
+@@ -26,6 +26,35 @@
  #define NUM_ELT_LOCAL	128
  
-+/*
+ /*
 + * Dispatch glyph drawing to the correct XRenderCompositeString function
 + */
 +static void
@@ -466,10 +454,11 @@ index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a7
 +    }
 +}
 +
- /*
++/*
   * Use the Render extension to draw the glyphs
   */
-@@ -43,12 +72,14 @@ XftGlyphRender (Display		*dpy,
+ 
+@@ -43,12 +72,14 @@
  		int		nglyphs)
  {
      XftFontInt	    *font = (XftFontInt *) pub;
@@ -485,7 +474,7 @@ index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a7
      char	    *char8;
      unsigned short  *char16;
      unsigned int    *char32;
-@@ -100,43 +131,75 @@ XftGlyphRender (Display		*dpy,
+@@ -100,43 +131,76 @@
  	if (!chars)
  	    goto bail1;
      }
@@ -503,7 +492,7 @@ index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a7
 -	switch (width) {
 -	case 1: char8[i] = (char) wire; break;
 -	case 2: char16[i] = (unsigned short) wire; break;
--	case 4: char32[i] = (unsigned long) wire; break;
+-	case 4: char32[i] = (unsigned int) wire; break;
 +        glyph = font->glyphs[wire];
 +	if (glyph->picture)
 +	{
@@ -523,6 +512,7 @@ index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a7
 +	    dstx += glyph->metrics.xOff;
 +	    dsty += glyph->metrics.yOff;
 +	    ++j;
++ 
  	}
      }
 -    switch (width) {
@@ -581,7 +571,7 @@ index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a7
  }
  
  _X_EXPORT void
-@@ -251,9 +314,10 @@ XftGlyphSpecRender (Display		    *dpy,
+@@ -251,9 +315,10 @@
  	    g = 0;
  	/*
  	 * check to see if the glyph is placed where it would
@@ -594,16 +584,16 @@ index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a7
  	{
  	    if (x != glyphs[i].x || y != glyphs[i].y)
  	    {
-@@ -267,7 +331,7 @@ XftGlyphSpecRender (Display		    *dpy,
+@@ -267,7 +332,7 @@
      }
  
      elts = elts_local;
 -    if (nelt > NUM_ELT_LOCAL)
 +    if (!font->info.color && nelt > NUM_ELT_LOCAL)
      {
- 	elts = malloc (nelt * sizeof (XGlyphElt8));
+ 	elts = malloc ((size_t)nelt * sizeof (XGlyphElt8));
  	if (!elts)
-@@ -275,7 +339,7 @@ XftGlyphSpecRender (Display		    *dpy,
+@@ -275,7 +340,7 @@
      }
  
      /*
@@ -612,7 +602,7 @@ index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a7
       */
      nelt = 0;
      x = y = 0;
-@@ -289,6 +353,11 @@ XftGlyphSpecRender (Display		    *dpy,
+@@ -289,6 +354,11 @@
  	    g = 0;
  	if ((glyph = font->glyphs[g]))
  	{
@@ -624,7 +614,7 @@ index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a7
  	    if (!i || x != glyphs[i].x || y != glyphs[i].y)
  	    {
  		if (n)
-@@ -320,23 +389,9 @@ XftGlyphSpecRender (Display		    *dpy,
+@@ -320,23 +390,9 @@
  	elts[nelt].nchars = n;
  	nelt++;
      }
@@ -651,7 +641,7 @@ index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a7
  
      if (elts != elts_local)
  	free (elts);
-@@ -535,7 +590,7 @@ XftGlyphFontSpecRender (Display			    *dpy,
+@@ -535,7 +591,7 @@
  	 * check to see if the glyph is placed where it would
  	 * fall using the normal spacing
  	 */
@@ -660,7 +650,7 @@ index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a7
  	{
  	    if (pub != prevPublic || x != glyphs[i].x || y != glyphs[i].y)
  	    {
-@@ -560,7 +615,7 @@ XftGlyphFontSpecRender (Display			    *dpy,
+@@ -560,7 +616,7 @@
      }
  
      /*
@@ -669,7 +659,7 @@ index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a7
       */
      nelt = 0;
      x = y = 0;
-@@ -578,6 +633,11 @@ XftGlyphFontSpecRender (Display			    *dpy,
+@@ -578,6 +634,11 @@
  	    g = 0;
  	if ((glyph = font->glyphs[g]))
  	{
@@ -681,7 +671,7 @@ index b280c03136d8d40dee086fba8e6411db7e0d33e4..9a789cb73f8db24fa685845a4f2cc6a7
  	    if (!i || pub != prevPublic || x != glyphs[i].x || y != glyphs[i].y)
  	    {
  		if (n)
-@@ -610,23 +670,9 @@ XftGlyphFontSpecRender (Display			    *dpy,
+@@ -610,23 +671,9 @@
  	elts[nelt].nchars = n;
  	nelt++;
      }
