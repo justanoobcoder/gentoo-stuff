@@ -3,3 +3,8 @@ www-client/google-chrome google-chrome
 app-office/wps-office WPS-EULA
 media-fonts/corefonts MSttfEULA
 app-arch/unrar unRAR
+dev-util/idea-community codehaus-classworlds
+# required by zsh-system-clipboard (argument)
+>=app-shells/zsh-system-clipboard-9999 GPL-3.0
+# required by vscode (argument)
+>=app-editors/vscode-1.59.0 Microsoft-vscode
