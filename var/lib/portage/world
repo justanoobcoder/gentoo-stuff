@@ -1,10 +1,11 @@
-app-admin/doas
+app-admin/doas::syaoran
 app-admin/syslog-ng
 app-arch/lz4
 app-arch/unrar
 app-arch/zip
 app-editors/neovim::syaoran
 app-editors/vim
+app-editors/vscode
 app-i18n/ibus
 app-i18n/ibus-bamboo
 app-misc/jq
@@ -35,6 +36,7 @@ dev-util/ccls
 dev-util/checkbashisms
 dev-util/dialog
 dev-util/idea-community
+dev-util/pycharm-community
 dev-vcs/git
 gnome-extra/nm-applet
 kde-apps/kdenlive
@@ -44,6 +46,7 @@ media-fonts/corefonts
 media-fonts/croscorefonts
 media-fonts/crosextrafonts-carlito
 media-fonts/dejavu
+media-fonts/hack-nerd-fonts
 media-fonts/jetbrains-mono-nerd-fonts
 media-fonts/noto
 media-fonts/noto-emoji
