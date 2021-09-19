@@ -1,0 +1,53 @@
+#!/bin/bash
+
+uname -r | grep "gentoo" > /dev/null ||
+    { echo "This script only works on Gentoo linux"; exit; }
+
+error() { echo -e "$1" && exit; }
+
+[ $EUID -ne 0 ] && error "Permission denied!\nRun this script as root."
+
+exe() {
+    eval "$@" || { local rc=$?; echo "run failed on cmd: $@" >&2; exit $rc; }
+}
+
+KERNEL_SRC="/usr/src/linux"
+MNT_POINT="/tmp/kernel"
+
+eselect kernel list
+echo -n "Choose kernel: "
+read KERNEL_TARGET
+
+cp ${KERNEL_SRC}/.config "$HOME/$(uname -r).config"
+
+exe "eselect kernel set ${KERNEL_TARGET}"
+exe "make -C ${KERNEL_SRC} mrproper"
+
+if [ -d ${MNT_POINT} ]; then
+    echo "${MNT_POINT} already existed! Do you want to remove it?"
+    select yn in "Yes" "No"; do
+        case $yn in
+            Yes )
+                rm -r ${MNT_POINT}
+                mkdir -p ${MNT_POINT}
+                break;;
+            No ) exit;
+        esac
+    done
+else
+    mkdir -p ${MNT_POINT}
+fi
+
+exe "mount -t tmpfs -o size=1G tmpfs ${MNT_POINT}"
+exe "cp ${HOME}/$(uname -r).config ${MNT_POINT}/.config"
+exe "make -C ${KERNEL_SRC} O=${MNT_POINT} olddefconfig"
+exe "make -C ${KERNEL_SRC} O=${MNT_POINT} -j4"
+exe "make -C ${KERNEL_SRC} O=${MNT_POINT} modules_install"
+exe "make -C ${KERNEL_SRC} O=${MNT_POINT} install"
+exe "emerge @module-rebuild"
+exe "grub-mkconfig -o /boot/grub/grub.cfg"
+exe "cp -v ${MNT_POINT}/.config ${KERNEL_SRC}/.config"
+exe "umount -l ${MNT_POINT}"
+exe "rm -r ${MNT_POINT}"
+
+exit 0
