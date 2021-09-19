@@ -1,24 +1,53 @@
 #!/bin/bash
 
-uname -r | grep "gentoo" > /dev/null ||
-    { echo "This script only works on Gentoo linux"; exit; }
-
 error() { echo -e "$1" && exit; }
-
-[ $EUID -ne 0 ] && error "Permission denied!\nRun this script as root."
 
 exe() {
     eval "$@" || { local rc=$?; echo "run failed on cmd: $@" >&2; exit $rc; }
 }
 
+usage() {
+    echo "Usage: upker <option> <argument>
+                    [-c | --config <config file path>]
+                    [-h | --help]"
+    exit
+}
+
+uname -r | grep "gentoo" > /dev/null ||
+    { echo "This script only works on Gentoo linux"; exit; }
+
+#[ $EUID -ne 0 ] && error "Permission denied!\nRun this script as root."
+
 KERNEL_SRC="/usr/src/linux"
 MNT_POINT="/tmp/kernel"
+
+PARSED_ARGUMENTS=$(getopt -a -n $0 -o c:h --long config:,help -- "$@")
+[ $? -ne 0 ] && usage
+
+while :; do
+    case "${1}" in
+        -c | --config)
+            [ -f ${2} ] && CONF_FILE=${2} || error "${2} does not exist!"
+            shift 2 ;;
+        -h | --help)
+            usage ;;
+        -- | '')
+            shift; break ;;
+        *) echo "Unexpected option: $1 is not a valid option." ; usage ;;
+    esac
+done
 
 eselect kernel list
 echo -n "Choose kernel: "
 read KERNEL_TARGET
 
-cp ${KERNEL_SRC}/.config "$HOME/$(uname -r).config"
+if ! [ -z ${CONF_FILE} ]; then
+    cp ${CONF_FILE} "$HOME/$(uname -r).config"
+elif [ -f ${KERNEL_SRC}/.config ]; then
+    cp ${KERNEL_SRC}/.config "$HOME/$(uname -r).config"
+else
+    error "Cannot detect kernel config file!"
+fi
 
 exe "eselect kernel set ${KERNEL_TARGET}"
 exe "make -C ${KERNEL_SRC} mrproper"
