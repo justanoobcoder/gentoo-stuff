@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# This script is for upgrading your Gentoo kernel
+# Kernel source code will be compiled on RAM instead of hard disk
+# It will use the old kernel config to compile the new kernel
+
+# This script can be executed by running these following
+# commands (internet access required):
+#   curl -Ls git.io/upker > upker
+#   chmod +x upker
+#   sudo ./upker
+
+# You can pass kernel config file into this script:
+#   sudo ./upker -c /path/to/config/file
+
 error() { echo -e "$1" && exit; }
 
 exe() {
@@ -16,7 +29,7 @@ usage() {
 uname -r | grep "gentoo" > /dev/null ||
     { echo "This script only works on Gentoo linux"; exit; }
 
-#[ $EUID -ne 0 ] && error "Permission denied!\nRun this script as root."
+[ $EUID -ne 0 ] && error "Permission denied!\nRun this script as root."
 
 KERNEL_SRC="/usr/src/linux"
 MNT_POINT="/tmp/kernel"
