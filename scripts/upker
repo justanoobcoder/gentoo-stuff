@@ -32,7 +32,7 @@ uname -r | grep "gentoo" > /dev/null ||
 [ $EUID -ne 0 ] && error "Permission denied!\nRun this script as root."
 
 KERNEL_SRC="/usr/src/linux"
-MNT_POINT="/tmp/kernel"
+MNT_POINT="/mnt/kernel"
 
 PARSED_ARGUMENTS=$(getopt -a -n $0 -o c:h --long config:,help -- "$@")
 [ $? -ne 0 ] && usage
