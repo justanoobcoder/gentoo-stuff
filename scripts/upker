@@ -22,6 +22,7 @@ exe() {
 usage() {
     echo "Usage: upker <option> <argument>
                     [-c | --config <config file path>]
+                    [-j | --jobs <number of jobs>]
                     [-h | --help]"
     exit
 }
@@ -29,12 +30,12 @@ usage() {
 uname -r | grep "gentoo" > /dev/null ||
     { echo "This script only works on Gentoo linux"; exit; }
 
-[ $EUID -ne 0 ] && error "Permission denied!\nRun this script as root."
+[ ${EUID} -ne 0 ] && error "Permission denied!\nRun this script as root."
 
 KERNEL_SRC="/usr/src/linux"
 MNT_POINT="/mnt/kernel"
 
-PARSED_ARGUMENTS=$(getopt -a -n $0 -o c:h --long config:,help -- "$@")
+PARSED_ARGUMENTS=$(getopt -a -n $0 -o c:j:h --long config:,jobs:,help -- "$@")
 [ $? -ne 0 ] && usage
 
 while :; do
@@ -42,13 +43,20 @@ while :; do
         -c | --config)
             [ -f ${2} ] && CONF_FILE=${2} || error "${2} does not exist!"
             shift 2 ;;
+        -j | --jobs)
+            JOBS=${2}
+            shift 2 ;;
         -h | --help)
             usage ;;
         -- | '')
             shift; break ;;
-        *) echo "Unexpected option: $1 is not a valid option." ; usage ;;
+        *) echo "Unexpected option: ${1} is not a valid option." ; usage ;;
     esac
 done
+
+command -v nproc > /dev/null || error "Cannot detect number of CPU cores!
+Please specify number of jobs by using -j option."
+[ -z ${JOBS} ] && JOBS="`nproc`"
 
 eselect kernel list
 echo -n "Choose kernel: "
@@ -83,7 +91,7 @@ fi
 exe "mount -t tmpfs -o size=1G tmpfs ${MNT_POINT}"
 exe "cp ${HOME}/$(uname -r).config ${MNT_POINT}/.config"
 exe "make -C ${KERNEL_SRC} O=${MNT_POINT} olddefconfig"
-exe "make -C ${KERNEL_SRC} O=${MNT_POINT} -j4"
+exe "make -C ${KERNEL_SRC} O=${MNT_POINT} -j${JOBS}"
 exe "make -C ${KERNEL_SRC} O=${MNT_POINT} modules_install"
 exe "make -C ${KERNEL_SRC} O=${MNT_POINT} install"
 exe "emerge @module-rebuild"
