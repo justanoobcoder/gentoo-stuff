@@ -55,9 +55,9 @@ echo -n "Choose kernel: "
 read KERNEL_TARGET
 
 if ! [ -z ${CONF_FILE} ]; then
-    cp ${CONF_FILE} "$HOME/$(uname -r).config"
+    cp -v ${CONF_FILE} "${HOME}/$(uname -r).config"
 elif [ -f ${KERNEL_SRC}/.config ]; then
-    cp ${KERNEL_SRC}/.config "$HOME/$(uname -r).config"
+    cp -v ${KERNEL_SRC}/.config "${HOME}/$(uname -r).config"
 else
     error "Cannot detect kernel config file!"
 fi
