@@ -23,8 +23,37 @@ usage() {
     echo "Usage: upker <option> <argument>
                     [-c | --config <config file path>]
                     [-j | --jobs <number of jobs>]
+                    [-r | --remove]
                     [-h | --help]"
     exit
+}
+
+remove_kernel() {
+    eselect kernel list
+    echo -n "Choose kernel to remove: "
+    read KERNEL_TARGET
+    KERNEL_VER="`eselect kernel list | sed -n $((KERNEL_TARGET+1))p |
+        cut -d'-' -f2`"
+
+    echo "====="
+    ls -d /boot/*-${KERNEL_VER}-gentoo \
+        /lib/modules/${KERNEL_VER}-gentoo \
+        /usr/src/*-${KERNEL_VER}-gentoo
+    echo "====="
+
+    echo "The above files and directories will be removed! Continue?"
+    select yn in "Yes" "No"; do
+        case $yn in
+            Yes )
+                rm -rf /boot/*-${KERNEL_VER}-gentoo \
+                    /lib/modules/${KERNEL_VER}-gentoo \
+                    /usr/src/*-${KERNEL_VER}-gentoo
+                echo "Done!"
+                exit
+                ;;
+            No ) exit;;
+        esac
+    done
 }
 
 uname -r | grep "gentoo" > /dev/null ||
@@ -35,7 +64,7 @@ uname -r | grep "gentoo" > /dev/null ||
 KERNEL_SRC="/usr/src/linux"
 MNT_POINT="/mnt/kernel"
 
-PARSED_ARGUMENTS=$(getopt -a -n $0 -o c:j:h --long config:,jobs:,help -- "$@")
+PARSED_ARGUMENTS=$(getopt -a -n $0 -o c:j:rh --long config:,jobs:,remove,help -- "$@")
 [ $? -ne 0 ] && usage
 
 while :; do
@@ -46,6 +75,8 @@ while :; do
         -j | --jobs)
             JOBS=${2}
             shift 2 ;;
+        -r | --remove)
+            remove_kernel ;;
         -h | --help)
             usage ;;
         -- | '')
