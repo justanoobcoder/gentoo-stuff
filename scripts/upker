@@ -38,7 +38,8 @@ remove_kernel() {
     echo "====="
     ls -d /boot/*-${KERNEL_VER}-gentoo \
         /lib/modules/${KERNEL_VER}-gentoo \
-        /usr/src/*-${KERNEL_VER}-gentoo
+        /usr/src/*-${KERNEL_VER}-gentoo \
+        ${HOME}/${KERNEL_VER}-gentoo.config
     echo "====="
 
     echo "The above files and directories will be removed! Continue?"
@@ -47,7 +48,8 @@ remove_kernel() {
             Yes )
                 rm -rf /boot/*-${KERNEL_VER}-gentoo \
                     /lib/modules/${KERNEL_VER}-gentoo \
-                    /usr/src/*-${KERNEL_VER}-gentoo
+                    /usr/src/*-${KERNEL_VER}-gentoo \
+                    ${HOME}/${KERNEL_VER}-gentoo.config
                 echo "Done!"
                 exit
                 ;;
