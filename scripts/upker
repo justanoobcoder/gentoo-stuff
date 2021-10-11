@@ -35,6 +35,9 @@ remove_kernel() {
     KERNEL_VER="`eselect kernel list | sed -n $((KERNEL_TARGET+1))p |
         cut -d'-' -f2`"
 
+    [ ${KERNEL_VER} == $(uname -r | cut -d'-' -f1) ] &&
+        error "Cannot remove current kernel!"
+
     echo "====="
     ls -d /boot/*-${KERNEL_VER}-gentoo \
         /lib/modules/${KERNEL_VER}-gentoo \
