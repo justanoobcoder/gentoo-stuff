@@ -1,0 +1,5 @@
+app-portage/layman sync-plugin-portage git
+app-admin/doas persist pam
+x11-misc/dunst dunstify
+app-i18n/ibus emoji gtk
+x11-misc/picom opengl
